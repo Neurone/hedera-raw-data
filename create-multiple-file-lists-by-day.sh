@@ -9,7 +9,7 @@ test -z "$1" && echo "specify a day (i.e. 2024-01-20)" && exit 100
 
 DAY=$1
 FOLDER_FRIENDLY_TIMESTAMP=$(print_timestamp_folder_friendly)
-LOGGING_FOLDER="$HD_LOGGING_FOLDER/$FOLDER_FRIENDLY_TIMESTAMP-create-file-list-by-day-$DAY"
+LOGGING_FOLDER="$HD_LOGGING_FOLDER/$FOLDER_FRIENDLY_TIMESTAMP-create-single-file-list-by-day-$DAY"
 
 echo "$(print_timestamp) ⚑ Started $0 (PID $$) with the following configuration"
 echo "$(print_timestamp) ⛶ Day (UTC) ...........: $DAY"

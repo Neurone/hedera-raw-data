@@ -37,7 +37,7 @@ while [ "$CHECK_DATE" != "$TODAY" ]; do
 
     if [[ ! -s "$LIST_FILE" || ! -s "$LIST_FILE_METADATA" || ! -s "$RECORDS_MD5_LIST_FILE" || ! -s "$SIGNATURES_MD5_LIST_FILE" ]]; then
         echo "$(print_timestamp) ⚠ $CHECK_DATE is missing or incomplete"
-        test "$FIX_IF_MISSING" == "true" && ./create-file-list-by-day.sh $VALIDATOR_ID $CHECK_DATE
+        test "$FIX_IF_MISSING" == "true" && ./create-single-file-list-by-day.sh $VALIDATOR_ID $CHECK_DATE
     fi
         
     CHECK_DATE=$(date -I -d "$CHECK_DATE + 1 day")
