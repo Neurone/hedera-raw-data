@@ -5,7 +5,7 @@
 source $(dirname "$0")/utils/common.sh
 
 # Check parameters
-test -z "$1" && echo "specify a day (i.e. 2024-01-20)" && exit 100
+test -z "$1" && echo "specify a day (i.e. 2024-01-20) as first parameter" && exit 100
 
 DAY=$1
 FOLDER_FRIENDLY_TIMESTAMP=$(print_timestamp_folder_friendly)
