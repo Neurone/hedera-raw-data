@@ -1,0 +1,336 @@
+Pricing download S3
+https://aws.amazon.com/s3/pricing/
+
+Data Transfer OUT From Amazon S3 To Internet
+AWS customers receive 100GB of data transfer out to the internet free each month, aggregated across all AWS Services and Regions (except China and GovCloud). The 100 GB free tier for data transfer out to the internet is global and does not apply separately or individually to AWS Regions.
+
+First 10 TB / Month	$0.09 per GB
+Next 40 TB / Month	$0.085 per GB
+Next 100 TB / Month	$0.07 per GB
+Greater than 150 TB / Month	$0.05 per GB
+
+First 100 Gb/month free
+
+Hedera mainnet (record file + signature singolo nodo) ~= 28Gb/day ~= $2,52/day ~= $75,6/month - ~$10 per 100Gb month ~= $65/month * 12 ~= $780/year 
+
+we have one record file + one record signature each 2 seconds, so in total 86400 elements per day
+
+Le signature sono 1Kb per file (per singolo nodo) = 43200 signature per day = 43,2 Mb per day = 15,7 Gb per year
+
+Sembra che non riesco a scaricare più di sei processi in parallelo. quando provo a lanciarne di più, gli altri vanno in crash.
+Dovrei provare ad aumentare il readtimeout
+
+Read timeout on endpoint URL: "None"
+xargs: aws: exited with status 255; aborting
+
+--cli-read-timeout (int) The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+--cli-connect-timeout (int) The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+
+Ho aumentato il timeout a 600 secondi, vediamo come si comporta con 8 download in parallelo
+
+
+Niente, più di 6 in parallelo non li regge, e semplicemnte i due processi in più vanno in timeout dopo 5 minuti.
+Giusto per sicurezza l'ho cmq impostato a 180, ma ne lancio solo 6 al max.
+
+Niente, sembra tutto incasinato adesso, nemmeno 6 in parallelo riesco a far girare, riporto a 60 secondi
+
+Download in loop delle liste per range di date (data di fine esclusa)
+./loop-date-range 2019-09-13 2024-01-01 | xargs -I {} ./download-record-list-by-day {}
+
+
+Per il download dei file veri e propri, quando un processo fallisce, trovo l'ultimo file scaricato e ricomincio da quello dopo.
+Il tutto viene fatto in automatico dallo scritp download-record-by-daily-list-continue, ma per info di seguito il modo per trovare l'ultimo file:
+
+find records/recordstreams/record0.0.3 -type f -name "$1T*" -printf "%f\n" | sort | tail -n1
+
+>>>
+I processi continuano ad interrompersi ad ogni minimo calo di connessione (cmq na merda S3...)
+
+Procedo con la mia versione V2 (utilizzo di aws s3 cp invece che aws s3api) ma a questo punto finito di scaricare la giornata devo necessariamente passare uno script che verifichi ogni file
+devo ancora decidere se verificare solo nome e dimensione oppure direttamente l'MD5. ma probabilmente vado di MD5 per sicurezza massima, posso creare anche una lista di hash direttamente dalla lista
+dei file che ho
+
+>>> prima però provo a disattivare IPFS, vediamo se è lui che fa casino. mmm, non è globable, parte solo con Brave anche se gli avevo detto di non partire in automatico, ma va beh. quindi non cambia, procedo con la versione di check finale com md5sum -c lista. ricreo nuovamente i file wsv per avere l'ordine giusto
+
+ignorare la prima linea
+rimuovere i _sig
+recuperare solo due colonne e metterle in ordine
+
+awk '{print $2 " " $1}' list/2024-01-08.wsv | sed '1d'
+awk '{print $2 " " $1}' list/2024-01-08.record.wsv | sed '1d' > a.list
+
+
+>>>
+
+organizzo i file per giorno, altrimenti è già ormai un casino da gestire a livello di file
+
+Es. di errore di zsh nel muovere o lavorare su liste di file così grandi
+
+❯ mv records/recordstreams/record0.0.3/2024-01-04T* records/recordstreams/record0.0.3/2024-01-04
+zsh: argument list too long: mv
+
+
+esempio di loop per scaricare l'elendo dei file giornalieri
+
+./utils/loop-date-range.sh 2019-09-13 2019-09-27 | xargs -I {} ./download-record-list-by-day.sh 0.0.5 {}
+
+#####################################################
+
+list:
+ciao
+mamma123
+prova
+mamma123
+due
+
+❯ cat test.list | sed '1,/ova/d'
+mamma123
+due
+
+
+❯ find records/recordstreams/record0.0.3 -type f -name "2024-01-01T*"
+...
+records/recordstreams/record0.0.3/2024-01-01T00_03_02.000640701Z.rcd.gz
+records/recordstreams/record0.0.3/2024-01-01T00_03_04.002361003Z.rcd.gz
+records/recordstreams/record0.0.3/2024-01-01T00_03_06.004381673Z.rcd.gz
+records/recordstreams/record0.0.3/2024-01-01T00_03_08.002458003Z.rcd.gz
+records/recordstreams/record0.0.3/2024-01-01T00_03_10.006048003Z.rcd.gz
+records/recordstreams/record0.0.3/2024-01-01T00_03_12.005193003Z.rcd.gz
+records/recordstreams/record0.0.3/2024-01-01T00_03_14.013713176Z.rcd.gz
+
+
+
+
+## list huge folder
+
+
+## getDents sembra molto meglio, ma non fa subfolder. CMQ devo testare a bocce ferme, perché ottengo risultati diversi, ora sto testando mentre il disco è in uso per i download
+
+❯ time find records/recordstreams/record0.0.3 -type f|wc -l
+223115
+find records/recordstreams/record0.0.3 -type f  0,06s user 0,99s system 43% cpu 2,418 total
+wc -l  0,01s user 0,00s system 0% cpu 2,417 total
+
+❯ time ls -fA records/recordstreams/record0.0.3|wc -l
+223115
+ls --color=tty -fA records/recordstreams/record0.0.3  0,07s user 0,90s system 34% cpu 2,830 total
+wc -l  0,00s user 0,02s system 0% cpu 2,830 total
+
+❯ time ./getdents records/recordstreams/record0.0.3 | wc -l
+223348
+./getdents records/recordstreams/record0.0.3  0,00s user 1,03s system 83% cpu 1,245 total
+wc -l  0,00s user 0,00s system 0% cpu 1,240 total
+
+time is not /usr/bin/time 
+
+### temp
+
+
+aws s3api list-objects-v2 --bucket hedera-mainnet-streams --request-payer requester --start-after recordstreams/record0.0.3/2024-01-27T04_02_00.000439115Z.rcd.gz --max-item 20 --no-cli-pager --output table
+
+
+jq -r ".Key" ./list/2024-01-23.list |grep -v _sig | xargs -I {} aws s3 cp --request-payer requester s3://hedera-mainnet-streams/{} ./records
+
+
+
+aws s3 cp --request-payer requester s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-26T00_00_12.011961833Z.rcd.gz .
+aws s3 cp --request-payer requester s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-26T00_00_12.011961833Z.rcd_sig .
+
+
+
+# Troppo tempo... praticamente 2 secondi ogni file! Potrei lanciare più processi in parallelo ma che palle, provo con s3api
+
+❯ time jq -r ".Key" ./list/2024-01-23.list |grep -v _sig | xargs -I {} aws s3 cp --request-payer requester s3://hedera-mainnet-streams/{} ./records
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_00.004000236Z.rcd.gz to records/2024-01-24T00_00_00.004000236Z.rcd.gz
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_02.012305690Z.rcd.gz to records/2024-01-24T00_00_02.012305690Z.rcd.gz
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_04.002064135Z.rcd.gz to records/2024-01-24T00_00_04.002064135Z.rcd.gz
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_06.011913872Z.rcd.gz to records/2024-01-24T00_00_06.011913872Z.rcd.gz
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_08.001730738Z.rcd.gz to records/2024-01-24T00_00_08.001730738Z.rcd.gz
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_10.000921627Z.rcd.gz to records/2024-01-24T00_00_10.000921627Z.rcd.gz
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_12.014466237Z.rcd.gz to records/2024-01-24T00_00_12.014466237Z.rcd.gz
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_14.009431867Z.rcd.gz to records/2024-01-24T00_00_14.009431867Z.rcd.gz
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_16.005295381Z.rcd.gz to records/2024-01-24T00_00_16.005295381Z.rcd.gz
+download: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-24T00_00_18.002151520Z.rcd.gz to records/2024-01-24T00_00_18.002151520Z.rcd.gz
+jq -r ".Key" ./list/2024-01-23.list  0,01s user 0,01s system 79% cpu 0,016 total
+grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox} -v _sig  0,00s user 0,00s system 5% cpu 0,016 total
+xargs -I {} aws s3 cp --request-payer requester s3://hedera-mainnet-streams/{  3,71s user 0,56s system 22% cpu 19,395 total
+
+
+# Un po' meglio con s3api (15 secondi per 10 risultati) ma sempre troppo
+
+❯ time jq -r ".Key" ./list/2024-01-23.list | grep -v _sig | xargs -I {} aws s3api get-object --bucket hedera-mainnet-streams --request-payer requester --key {} a.bin --no-cli-pager
+
+jq -r ".Key" ./list/2024-01-23.list  0,01s user 0,00s system 94% cpu 0,013 total
+grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox} -v _sig  0,00s user 0,00s system 6% cpu 0,013 total
+xargs -I {} aws s3api get-object --bucket hedera-mainnet-streams  requester    3,31s user 0,48s system 24% cpu 15,154 total
+
+
+###
+
+Recupero delle liste in maniera progressiva (data di fine esclusa)
+❯ ./loop-date-range 2019-09-13 2024-01-01 | xargs -I {} ./download-record-list-by-day {}
+
+Creazione delle wsv (whitespace separated value) list
+❯ ./loop-date-range 2019-09-13 2024-01-27 | xargs -I {} ./create-wsv-from-daily-list {}
+
+
+
+#### prove di compressione
+
+da /media/sf_Hedera/temp prendo tutti i file del 7 gennaio (giornata fiacca)
+❯ find ../hedera-mainnet-streams/records/recordstreams/record0.0.3 -type f -name "2024-01-07T*" | xargs -I{} cp {} .
+❯ du -hs
+1,4G	.
+❯ gunzip *
+❯ du -hs
+3,1G	.
+❯ tar cvf 20240107.rcd.tar *
+❯ l|head
+total 6,0G
+drwxrwx--- 1 root vboxsf  14M gen 27 23:04 .
+drwxrwx--- 1 root vboxsf    0 gen 27 22:16 ..
+-rwxrwx--- 1 root vboxsf 3,0G gen 27 23:05 20240107.rcd.tar
+-rwxrwx--- 1 root vboxsf  61K gen 27 23:00 2024-01-07T00_00_00.032820502Z.rcd
+-rwxrwx--- 1 root vboxsf  52K gen 27 23:00 2024-01-07T00_00_02.099475829Z.rcd
+-rwxrwx--- 1 root vboxsf  51K gen 27 23:00 2024-01-07T00_00_04.003047003Z.rcd
+-rwxrwx--- 1 root vboxsf  51K gen 27 23:00 2024-01-07T00_00_06.000423003Z.rcd
+-rwxrwx--- 1 root vboxsf  48K gen 27 23:00 2024-01-07T00_00_08.002378003Z.rcd
+-rwxrwx--- 1 root vboxsf  41K gen 27 23:00 2024-01-07T00_00_10.013837861Z.rcd
+
+
+❯ time gzip -k9 20240107.rcd.tar
+gzip -k9 20240107.rcd.tar  72,47s user 1,34s system 99% cpu 1:13,97 total
+
+❯ time xz -k9 20240107.rcd.tar
+
+❯ time bzip2 -k9 20240107.rcd.tar
+bzip2 -k9 20240107.rcd.tar  186,10s user 1,37s system 99% cpu 3:07,77 total
+
+❯ time xz -kv0 20240107.rcd.tar
+20240107.rcd.tar (1/1)
+  100 %   1.173,3 MiB / 3.029,1 MiB = 0,387    21 MiB/s       2:24             
+xz -kv0 20240107.rcd.tar  142,20s user 1,78s system 99% cpu 2:24,12 total
+
+❯ time xz -kv3 20240107.rcd.tar
+20240107.rcd.tar (1/1)
+  100 %   1.166,9 MiB / 3.029,1 MiB = 0,385   8,1 MiB/s       6:16             
+xz -kv3 20240107.rcd.tar  372,90s user 2,64s system 99% cpu 6:16,07 total
+
+❯ time xz -kv6 20240107.rcd.tar
+20240107.rcd.tar (1/1)
+  100 %   1.137,4 MiB / 3.029,1 MiB = 0,375   2,9 MiB/s      17:31             
+xz -kv6 20240107.rcd.tar  1045,58s user 5,41s system 99% cpu 17:31,65 total
+
+❯ time xz -kv9 20240107.rcd.tar
+20240107.rcd.tar (1/1)
+  100 %   1.135,0 MiB / 3.029,1 MiB = 0,375   2,4 MiB/s      21:18             
+xz -kv9 20240107.rcd.tar  1273,71s user 3,91s system 99% cpu 21:18,09 total
+
+
+-rwxrwx--- 1 developer developer 3176273920 gen 27 23:27 20240107.rcd.tar
+-rwxrwx--- 1 developer developer 1231400292 gen 28 00:52 20240107.rcd.tar.bz29
+-rwxrwx--- 1 developer developer 1338746470 gen 27 23:27 20240107.rcd.tar.gz9
+-rwxrwx--- 1 developer developer 1230292344 gen 27 23:27 20240107.rcd.tar.xz0
+-rwxrwx--- 1 developer developer 1223557556 gen 27 23:27 20240107.rcd.tar.xz3
+-rwxrwx--- 1 developer developer 1192653364 gen 27 23:27 20240107.rcd.tar.xz6
+-rwxrwx--- 1 developer developer 1190169084 gen 27 23:27 20240107.rcd.tar.xz9
+
+
+                                                                                                    Compression time        Decompression time
+1. Totale non compresso:                       3.156.988.130
+2. Totale singoli file compressi (gz):         1.383.909.509  1% = 13839095,09
+3. Totale file singolo compresso (gz -9):      1.338.746.470  vs 2     -03,26%     - 45.163.039        74 sec    1:13,97    13 sec
+4. Totale file singolo compresso (bzip2 -9):   1.231.400.292  vs 2     -11,02%     -152.509.217       188 sec    3:07,77    78 sec
+5. Totale file singolo compresso (xz -0):      1.230.292.344  vs 2     -11,10%     -153.617.165       144 sec    2:24,12    59 sec
+6. Totale file singolo compresso (xz -3):      1.230.292.344  vs 2     -11,58%     -160.351.953       376 sec    6:16,07    56 sec
+7. Totale file singolo compresso (xz -6):      1.192.653.364  vs 2     -13,81%     -191.256.145     1.046 sec   17:31,65    60 sec
+8. Totale file singolo compresso (xz -9):      1.190.169.084  vs 2     -13,99%     -193.740.425     1.278 sec   21:18,09    58 sec
+
+
+
+
+Decompression
+
+❯ time unxz -vkS .xz9 20240107.rcd.tar.xz9
+20240107.rcd.tar.xz9 (1/1)
+  100 %   1.135,0 MiB / 3.029,1 MiB = 0,375    53 MiB/s       0:57             
+unxz -vkS xz9 20240107.rcd.tar.xz9  55,07s user 1,94s system 99% cpu 57,098 total
+
+
+❯ time unxz -vkS .xz6 20240107.rcd.tar.xz6
+20240107.rcd.tar.xz6 (1/1)
+  100 %   1.137,4 MiB / 3.029,1 MiB = 0,375    51 MiB/s       0:59             
+unxz -vkS .xz6 20240107.rcd.tar.xz6  56,78s user 2,31s system 99% cpu 59,593 total
+
+❯ time unxz -vkS .xz3 20240107.rcd.tar.xz3
+20240107.rcd.tar.xz3 (1/1)
+  100 %   1.166,9 MiB / 3.029,1 MiB = 0,385    54 MiB/s       0:56             
+unxz -vkS .xz3 20240107.rcd.tar.xz3  54,32s user 2,02s system 99% cpu 56,616 total
+
+❯ time unxz -vkS .xz0 20240107.rcd.tar.xz0
+20240107.rcd.tar.xz0 (1/1)
+  100 %   1.173,3 MiB / 3.029,1 MiB = 0,387    51 MiB/s       0:58             
+unxz -vkS .xz0 20240107.rcd.tar.xz0  56,71s user 2,17s system 99% cpu 58,992 total
+
+❯ time gunzip -kvS .gz9 20240107.rcd.tar.gz9
+20240107.rcd.tar.gz9:	 57.9% -- created 20240107.rcd.tar
+gunzip -kvS .gz9 20240107.rcd.tar.gz9  11,38s user 1,44s system 99% cpu 12,897 total
+
+❯ time bzip2 -dkv 20240107.rcd.tar.bz2
+  20240107.rcd.tar.bz2: done
+bzip2 -dkv 20240107.rcd.tar.bz2  75,62s user 1,97s system 99% cpu 1:17,73 total
+
+
+
+
+
+
+fallito: s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-26T01_49_32.046342164Z.rcd.gz
+
+
+
+
+File test operators #
+The test command includes the following FILE operators that allow you to test for particular types of files:
+
+-b FILE - True if the FILE exists and is a special block file.
+-c FILE - True if the FILE exists and is a special character file.
+-d FILE - True if the FILE exists and is a directory.
+-e FILE - True if the FILE exists and is a file, regardless of type (node, directory, socket, etc.).
+-f FILE - True if the FILE exists and is a regular file (not a directory or device).
+-G FILE - True if the FILE exists and has the same group as the user running the command.
+-h FILE - True if the FILE exists and is a symbolic link.
+-g FILE - True if the FILE exists and has set-group-id (sgid) flag set.
+-k FILE - True if the FILE exists and has a sticky bit flag set.
+-L FILE - True if the FILE exists and is a symbolic link.
+-O FILE - True if the FILE exists and is owned by the user running the command.
+-p FILE - True if the FILE exists and is a pipe.
+-r FILE - True if the FILE exists and is readable.
+-S FILE - True if the FILE exists and is a socket.
+-s FILE - True if the FILE exists and has nonzero size.
+-u FILE - True if the FILE exists and set-user-id (suid) flag is set.
+-w FILE - True if the FILE exists and is writable.
+-x FILE - True if the FILE exists and is executable.
+
+
+##############
+
+#####
+
+
+
+
+aws s3 cp s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-02T15_13_56.022291003Z.rcd.gz . --request-payer requester --no-paginate --output text
+
+
+
+xargs -I {} aws s3api get-object --bucket hedera-mainnet-streams --request-payer requester --key $VALIDATOR_S3_SOURCE_FOLDER/{} $VALIDATOR_SIGNATURE_DESTINATION_FOLDER/{} --no-cli-pager --output text
+
+
+
+ps -eaf|grep " 2019-09-13"|cut -d' ' -f2|xargs -I {} kill {}
+
+
+
+
+./utils/loop-date-range.sh 2019-09-13 2020-01-01 | xargs -I {} ./create-multiple-file-lists-by-day.sh {}

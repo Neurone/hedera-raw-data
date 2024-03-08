@@ -1,0 +1,53 @@
+# signature
+
+## progress
+
+
+
+ ./download-and-check-signatures-by-md5sum-list.sh 0.0.3 2024-01-26 per validatori multipli
+
+
+## complete
+
+
+
+
+## complete + check checksum
+
+ ./download-and-check-signatures-by-md5sum-list.sh 0.0.3 2019-09-13
+ ./download-and-check-signatures-by-md5sum-list.sh 0.0.3 2019-09-14
+
+## how to manually check
+
+❯ pwd
+/media/developer/VM-HELL-2000/Hedera/hedera-streams/signatures/0.0.3/2019-09-13
+
+❯ md5sum -c ../../../lists/0.0.3/2019-09-13.signatures.md5sum --quiet
+(void result means everything is ok)
+
+to check a folder I need to modify the hashlist with fullpath, because md5sum uses that to find the file
+
+something like this, if the folder is /home/developer/temp/test:
+
+sed 's/  /  \/home\/developer\/temp\/test\//' hashes.txt | md5sum -c
+
+or this if relative to the current folder (ie. I'm in /home/developer/temp)
+
+
+
+
+developer@galassia-dev:~/temp$ export P="/home/developer/temp/test"
+developer@galassia-dev:~/temp$ echo $P|sed "s/\//\\\\\//g"
+\/home\/developer\/temp\/test
+developer@galassia-dev:~/temp$ export P1=$(echo $P|sed "s/\//\\\\\//g")
+developer@galassia-dev:~/temp$ echo $P1
+\/home\/developer\/temp\/test
+developer@galassia-dev:~/temp$ sed 's/  /  '$P1'\//' hashes.txt 
+af057ef8fd5d393f0f233888ad58f977  /home/developer/temp/test/a
+87cf12bc694953e3a86605abfcf768e7  /home/developer/temp/test/b
+9fd401a9b0f5d574d6da4a7e114610ef  /home/developer/temp/test/c
+developer@galassia-dev:~/temp$ sed 's/  /  '$P1'\//' hashes.txt | md5sum -c
+/home/developer/temp/test/a: OK
+/home/developer/temp/test/b: OK
+/home/developer/temp/test/c: OK
+
