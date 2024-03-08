@@ -1,6 +1,5 @@
 # This file is imported with `source`
-#HD_ROOT_DATA_FOLDER="/media/sf_Hedera/hedera-streams" # from Ubuntu VM
-HD_ROOT_DATA_FOLDER="/media/developer/VM-HELL-2000/Hedera/hedera-streams" # Native Ubuntu
+HD_ROOT_DATA_FOLDER="/home/developer/hedera-streams"
 HD_RECORDS_ROOT_FOLDER=$HD_ROOT_DATA_FOLDER"/records"
 HD_SIGNATURES_ROOT_FOLDER=$HD_ROOT_DATA_FOLDER"/signatures"
 HD_LISTS_ROOT_FOLDER=$HD_ROOT_DATA_FOLDER"/lists"
