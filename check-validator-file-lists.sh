@@ -25,6 +25,7 @@ echo "$(print_timestamp) ⛶ Current time (System time zone)......: $(date)"
 echo "$(print_timestamp) ⛶ Current time (UTC)...................: $(date -u)"
 echo "$(print_timestamp) ⛶ Toady (UTC)..........................: $TODAY"
 echo "$(print_timestamp) ⛶ Yesterday (UTC)......................: $(date -I -d "$TODAY - 1 day")"
+echo "$(print_timestamp) ⛶ Hedera Mainnet Start Date ...........: $HD_HEDERA_MAINNET_START_DATE"
 echo "$(print_timestamp) ⛶ Validator ID ........................: $VALIDATOR_ID"
 echo "$(print_timestamp) ⛶ Validator's file lists folder .......: $VALIDATOR_FILE_LIST_FOLDER"
 
