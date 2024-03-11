@@ -334,3 +334,11 @@ ps -eaf|grep " 2019-09-13"|cut -d' ' -f2|xargs -I {} kill {}
 
 
 ./utils/loop-date-range.sh 2019-09-13 2020-01-01 | xargs -I {} ./create-multiple-file-lists-by-day.sh {}
+
+
+# daily
+./create-multiple-file-lists-by-day.sh 2024-03-10
+or
+./with-validators-range.sh 3 34 ./create-single-file-list-by-day.sh 2024-03-01
+
+

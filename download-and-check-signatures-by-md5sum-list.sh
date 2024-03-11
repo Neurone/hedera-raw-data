@@ -5,8 +5,8 @@
 source $(dirname "$0")/utils/common.sh
 
 # Check parameters
-test -z "$1" && echo "specify a validator ID (i.e. 0.0.3) as first parameter" && exit 100
-test -z "$2" && echo "specify a day (i.e. 2024-01-20) as second parameter" && exit 100
+test -z "$1" && echo "Specify a validator ID (i.e. 0.0.3) as first parameter" && exit 100
+test -z "$2" && echo "Specify a day (i.e. 2024-01-20) as second parameter" && exit 100
 
 VALIDATOR_ID="$1"
 DAY="$2"
