@@ -7,6 +7,15 @@ Tools to download, manage and share Hedera raw data
 |Name | Description |
 |-|-|
 |check-validator-file-lists | Check if all the record file list and corresponding metadata are created. If not, it downloads the list. This checks from the start 2019-09-13 up to yesterday (current date -1 day). Use `fix` parameter in case you want to try to download the list again. |
+|create-metadata-from-file-list-by-day | Create metadata from AWS file list for a specific day. |
+|create-multiple-file-lists-by-day | Create the file list for a specific day for all consensus nodes. |
+|create-single-file-list-by-day | Create a single file list from AWS. |
+|download-and-check-records-by-md5sum-list | Download and check record files for a node. |
+|download-and-check-signatures-by-md5sum-list | Download and check signature files for a node. |
+|download-and-check-sidecars-by-md5sum-list | Download and check sidecar files for a node. |
+|download-file | Download a single file from AWS S3 |
+|with-validators-range | Helper script to loop through node ranges. |
+|loop-date-range | Helper script to loop through dates. |
 
 ## Usage examples
 
