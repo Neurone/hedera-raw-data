@@ -17,6 +17,29 @@ Tools to download, manage and share Hedera raw data
 |with-nodes-range | Helper script to loop through node ranges. |
 |loop-date-range | Helper script to loop through dates. |
 
+You can run multiple scripts that download files (record, signature, sidecar) in parallel on the same list. The script randomize by default the file order, so it reduces the odds to overlap with other script. In case the file is already there, the script skip that file.
+
+In any case, the script check the hash of the file at the end of the process and, in case it's wrong, it downloads the file again.
+
+To be 100% sure, you can run the download again at the end. In case some file is missing or the hash does not correspond, it will be downloaded again.
+
+For example, here I modified an existing file `2019-09-13T23_57_50.186388Z.rcd` and, running the script, I was able to detect the error and download it again:
+
+```zsh
+❯ ./download-and-check-records-by-md5sum-list.sh 0.0.3 2019-09-13
+2024-09-20T13:33:44.419Z-251049 ⚑ Started ./download-and-check-records-by-md5sum-list.sh (PID 251049) with the following configuration
+2024-09-20T13:33:44.420Z-251049 ⛶ Day (UTC) .........................: 2019-09-13
+2024-09-20T13:33:44.421Z-251049 ⛶ Node ID ......................: 0.0.3
+2024-09-20T13:33:44.422Z-251049 ⛶ Node's file lists folder .....: /media/sf_Hedera/hedera-streams/lists/0.0.3
+2024-09-20T13:33:44.423Z-251049 ⛶ Node's records destination ...: /media/sf_Hedera/hedera-streams/records/0.0.3/2019-09-13
+2024-09-20T13:33:44.426Z-251049 ☕ Downloading the record files listed in the MD5 list but missing from the node's folder
+bytes	1672	application/octet-stream	"ac8b4d9696a8669b1ff09b1e4007826a"	2019-09-13T23:57:57+00:00	requester	hNsdT8hs.Fno0s7pMpUGao8V65Fw.WRN
+2024-09-20T13:33:45.746Z-251049 ✔ Download operations ended
+2024-09-20T13:33:45.748Z-251049 ⚙ Checking MD5 checksum for files in /media/sf_Hedera/hedera-streams/lists/0.0.3/2019-09-13.records.md5sum over /media/sf_Hedera/hedera-streams/records/0.0.3/2019-09-13
+2024-09-20T13:33:46.120Z-251049 ✔ All the listed files match with the files in the folder.
+2024-09-20T13:33:46.121Z-251049 🏁 Script ./download-and-check-records-by-md5sum-list.sh (PID 251049) ended
+```
+
 ## Usage examples
 
 Create file lists and metadata files (used to download the actual data) for all current consensus nodes for one day with:
