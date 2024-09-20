@@ -1,5 +1,5 @@
 #!/bin/bash
-# ./download-record-list-by-day.sh 0.0.3 2024-01-01
+# ./create-single-file-list-by-day.sh 0.0.3 2024-01-01
 
 # TODO check file existence
 source $(dirname "$0")/utils/common.sh
@@ -19,12 +19,14 @@ echo "$(print_timestamp) ⛶ Validator's file lists folder ...: $VALIDATOR_FILE_
 
 init_working_folders
 
-search_record_and_signature_list &&\
+search_record_signature_sidecar_list &&\
     create_medatada_from_list &&\
     extract_md5_for_records_from_list &&\
     extract_md5_for_signatures_from_list &&\
+    extract_md5_for_sidecars_from_list &&\
     extract_size_for_records_from_list &&\
-    extract_size_for_signatures_from_list
+    extract_size_for_signatures_from_list &&\
+    extract_size_for_sidecars_from_list
 
 echo "$(print_timestamp) 🏁 Script $0 (PID $$) ended" &&\
     exit 0

@@ -1,6 +1,18 @@
 #!/bin/bash
-# Check if all the record file list and corresponding metadata are created, or it download the list.
+# Check if all the record file list and corresponding metadata are created. If not, it downloads the list.
 # This checks from the start 2019-09-13 up to yestarday (current date -1 day)
+#
+# Example:
+#
+# ./check-validator-file-lists.sh 0.0.3
+#
+# Use fix to try downloading the list again:
+#
+# ./check-validator-file-lists.sh 0.0.3 fix
+#
+# Use ignore-validator-join-date if you want to start the check from Hedera public lunch, and not from node starting date
+#
+# ./check-validator-file-lists.sh 0.0.3 fix ignore-validator-join-date
 
 # TODO check file existence
 source $(dirname "$0")/utils/common.sh

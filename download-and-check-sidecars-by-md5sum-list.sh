@@ -1,5 +1,5 @@
 #!/bin/bash
-# ./download-and-check-records-by-md5sum-list.sh 0.0.3 2024-01-01
+# ./download-and-check-records-by-md5sum-list 0.0.3 2024-01-01
 
 # TODO check file existence
 source $(dirname "$0")/utils/common.sh

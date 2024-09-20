@@ -35,7 +35,7 @@ Giusto per sicurezza l'ho cmq impostato a 180, ma ne lancio solo 6 al max.
 Niente, sembra tutto incasinato adesso, nemmeno 6 in parallelo riesco a far girare, riporto a 60 secondi
 
 Download in loop delle liste per range di date (data di fine esclusa)
-./loop-date-range 2019-09-13 2024-01-01 | xargs -I {} ./download-record-list-by-day {}
+./utils/loop-date-range.sh 2019-09-13 2019-09-27 | xargs -I {} ./download-record-list-by-day.sh 0.0.5 {}
 
 
 Per il download dei file veri e propri, quando un processo fallisce, trovo l'ultimo file scaricato e ricomincio da quello dopo.
@@ -342,3 +342,6 @@ or
 ./with-validators-range.sh 3 34 ./create-single-file-list-by-day.sh 2024-03-01
 
 
+
+
+#HD_S3_SIDECARS_ROOT_FOLDER="recordstreams/record0.0.3/sidecar/2024-01-01T00_00_34.001605003Z_01.rcd.gz" # example

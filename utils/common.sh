@@ -9,6 +9,7 @@ function init_working_folders()
     create_folder_if_not_present $HD_LOGGING_FOLDER
     create_folder_if_not_present $HD_RECORDS_ROOT_FOLDER
     create_folder_if_not_present $HD_SIGNATURES_ROOT_FOLDER
+    create_folder_if_not_present $HD_SIDECARS_ROOT_FOLDER
     create_folder_if_not_present $HD_LISTS_ROOT_FOLDER
     create_folder_if_not_present $HD_IPFS_ROOT_FOLDER
     return 0
@@ -21,7 +22,7 @@ function create_folder_if_not_present()
 }
 
 # Mandatory input env values: VALIDATOR_ID, VALIDATOR_FILE_LIST_FOLDER, DAY, HD_FILE_LIST_EXTENSION
-function search_record_and_signature_list()
+function search_record_signature_sidecar_list()
 {    
     # TODO check mandatory vars
     S3_BUCKET_PREFIX="recordstreams/record$VALIDATOR_ID/$DAY"
@@ -30,9 +31,15 @@ function search_record_and_signature_list()
     create_folder_if_not_present $VALIDATOR_FILE_LIST_FOLDER
         
     echo "$(print_timestamp) ☕ Filtering files for $DAY and consensus node $VALIDATOR_ID from AWS S3"
+
     aws s3api list-objects-v2 --bucket hedera-mainnet-streams --request-payer requester --prefix $S3_BUCKET_PREFIX --output json |\
         jq -c ".Contents[]?" > $LIST_FULLPATH
     
+    S3_BUCKET_PREFIX="recordstreams/record$VALIDATOR_ID/sidecar/$DAY"
+
+    aws s3api list-objects-v2 --bucket hedera-mainnet-streams --request-payer requester --prefix $S3_BUCKET_PREFIX --output json |\
+        jq -c ".Contents[]?" >> $LIST_FULLPATH
+
     [ ! -s "${LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ Requested file $S3_BUCKET_PREFIX missing from AWS S3. Exiting." && exit 101
 
     return 0
@@ -73,7 +80,7 @@ function extract_md5_for_records_from_list()
     echo "$(print_timestamp) ⚙ Extracting MD5 checksums for records to $MD5_FULLPATH"
     jq -c '[.ETag, .Key]' $FILE_LIST_FULLPATH |\
         sed 's/["\\[]//g' | sed 's/.$//' | sed 's/recordstreams\/record'$VALIDATOR_ID'\///' | sed 's/,/ /g' |\
-        grep -v _sig > $MD5_FULLPATH
+        grep -v _sig | grep -v sidecar > $MD5_FULLPATH
 
     return 0
 }
@@ -92,6 +99,24 @@ function extract_md5_for_signatures_from_list()
     jq -c '[.ETag, .Key]' $FILE_LIST_FULLPATH |\
         sed 's/["\\[]//g' | sed 's/.$//' | sed 's/recordstreams\/record'$VALIDATOR_ID'\///' | sed 's/,/ /g' |\
         grep _sig > $MD5_FULLPATH
+
+    return 0
+}
+
+# Mandatory input env values: VALIDATOR_ID, ...
+function extract_md5_for_sidecars_from_list()
+{
+    #TODO CHECK VARIABLES
+    FILE_LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    MD5_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_SIDECARS_LIST_MD5_EXTENSION"
+
+    # Check FILE_LIST_FULLPATH's size > 0
+    [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 102
+
+    echo "$(print_timestamp) ⚙ Extracting MD5 checksums for sidecars to $MD5_FULLPATH"
+    jq -c '[.ETag, .Key]' $FILE_LIST_FULLPATH |\
+        sed 's/["\\[]//g' | sed 's/.$//' | sed 's/recordstreams\/record'$VALIDATOR_ID'\///' | sed 's/,/ /g' |\
+        grep sidecar > $MD5_FULLPATH
 
     return 0
 }
@@ -172,6 +197,23 @@ function extract_size_for_signatures_from_list()
     echo "$(print_timestamp) ⚙ Computing signatures total size to $SIZE_FULLPATH"
     jq -c "[.Size, .Key]" $FILE_LIST_FULLPATH |\
         grep _sig | sed 's/\[//g' | sed 's/,.*//g'| paste -s -d+ - |\
+        bc > $SIZE_FULLPATH
+
+    return 0
+}
+
+# Mandatory input env values: VALIDATOR_ID, ...
+function extract_size_for_sidecars_from_list()
+{
+    #TODO CHECK VARIABLES
+    FILE_LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    SIZE_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_SIDECARS_LIST_SIZE_EXTENSION"
+
+    [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 102
+
+    echo "$(print_timestamp) ⚙ Computing sidecars total size to $SIZE_FULLPATH"
+    jq -c "[.Size, .Key]" $FILE_LIST_FULLPATH |\
+        grep sidecar | sed 's/\[//g' | sed 's/,.*//g'| paste -s -d+ - |\
         bc > $SIZE_FULLPATH
 
     return 0
