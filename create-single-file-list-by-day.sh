@@ -5,17 +5,17 @@
 source $(dirname "$0")/utils/common.sh
 
 # Check parameters
-test -z "$1" && echo "Specify a validator ID (i.e. 0.0.3) as first parameter" && exit 100
+test -z "$1" && echo "Specify a node ID (i.e. 0.0.3) as first parameter" && exit 100
 test -z "$2" && echo "Specify a day (i.e. 2024-01-20) as second parameter" && exit 100
 
-VALIDATOR_ID=$1
-VALIDATOR_FILE_LIST_FOLDER=$HD_LISTS_ROOT_FOLDER/$VALIDATOR_ID
+NODE_ID=$1
+NODE_FILE_LIST_FOLDER=$HD_LISTS_ROOT_FOLDER/$NODE_ID
 DAY=$2
 
 echo "$(print_timestamp) ⚑ Started $0 (PID $$) with the following configuration"
 echo "$(print_timestamp) ⛶ Day (UTC) .......................: $DAY"
-echo "$(print_timestamp) ⛶ Validator ID ....................: $VALIDATOR_ID"
-echo "$(print_timestamp) ⛶ Validator's file lists folder ...: $VALIDATOR_FILE_LIST_FOLDER"
+echo "$(print_timestamp) ⛶ Node ID ....................: $NODE_ID"
+echo "$(print_timestamp) ⛶ Node's file lists folder ...: $NODE_FILE_LIST_FOLDER"
 
 init_working_folders
 

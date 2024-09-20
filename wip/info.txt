@@ -324,7 +324,7 @@ aws s3 cp s3://hedera-mainnet-streams/recordstreams/record0.0.3/2024-01-02T15_13
 
 
 
-xargs -I {} aws s3api get-object --bucket hedera-mainnet-streams --request-payer requester --key $VALIDATOR_S3_SOURCE_FOLDER/{} $VALIDATOR_SIGNATURE_DESTINATION_FOLDER/{} --no-cli-pager --output text
+xargs -I {} aws s3api get-object --bucket hedera-mainnet-streams --request-payer requester --key $NODE_S3_SOURCE_FOLDER/{} $NODE_SIGNATURE_DESTINATION_FOLDER/{} --no-cli-pager --output text
 
 
 
@@ -339,7 +339,7 @@ ps -eaf|grep " 2019-09-13"|cut -d' ' -f2|xargs -I {} kill {}
 # daily
 ./create-multiple-file-lists-by-day.sh 2024-03-10
 or
-./with-validators-range.sh 3 34 ./create-single-file-list-by-day.sh 2024-03-01
+./with-nodes-range.sh 3 34 ./create-single-file-list-by-day.sh 2024-03-01
 
 
 

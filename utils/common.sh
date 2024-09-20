@@ -21,21 +21,21 @@ function create_folder_if_not_present()
     return 0
 }
 
-# Mandatory input env values: VALIDATOR_ID, VALIDATOR_FILE_LIST_FOLDER, DAY, HD_FILE_LIST_EXTENSION
+# Mandatory input env values: NODE_ID, NODE_FILE_LIST_FOLDER, DAY, HD_FILE_LIST_EXTENSION
 function search_record_signature_sidecar_list()
 {    
     # TODO check mandatory vars
-    S3_BUCKET_PREFIX="recordstreams/record$VALIDATOR_ID/$DAY"
-    LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    S3_BUCKET_PREFIX="recordstreams/record$NODE_ID/$DAY"
+    LIST_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
 
-    create_folder_if_not_present $VALIDATOR_FILE_LIST_FOLDER
+    create_folder_if_not_present $NODE_FILE_LIST_FOLDER
         
-    echo "$(print_timestamp) ☕ Filtering files for $DAY and consensus node $VALIDATOR_ID from AWS S3"
+    echo "$(print_timestamp) ☕ Filtering files for $DAY and consensus node $NODE_ID from AWS S3"
 
     aws s3api list-objects-v2 --bucket hedera-mainnet-streams --request-payer requester --prefix $S3_BUCKET_PREFIX --output json |\
         jq -c ".Contents[]?" > $LIST_FULLPATH
     
-    S3_BUCKET_PREFIX="recordstreams/record$VALIDATOR_ID/sidecar/$DAY"
+    S3_BUCKET_PREFIX="recordstreams/record$NODE_ID/sidecar/$DAY"
 
     aws s3api list-objects-v2 --bucket hedera-mainnet-streams --request-payer requester --prefix $S3_BUCKET_PREFIX --output json |\
         jq -c ".Contents[]?" >> $LIST_FULLPATH
@@ -45,12 +45,12 @@ function search_record_signature_sidecar_list()
     return 0
 }
 
-# Mandatory input env values: VALIDATOR_ID, VALIDATOR_FILE_LIST_FOLDER, DAY, HD_FILE_LIST_METADATA_EXTENSION
+# Mandatory input env values: NODE_ID, NODE_FILE_LIST_FOLDER, DAY, HD_FILE_LIST_METADATA_EXTENSION
 function create_medatada_from_list()
 {
     #TODO CHECK VARIABLES
-    FILE_LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
-    METADATA_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_METADATA_EXTENSION"
+    FILE_LIST_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    METADATA_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_METADATA_EXTENSION"
 
     # Check FILE_LIST_FULLPATH's size > 0
     [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 102
@@ -67,55 +67,55 @@ function create_medatada_from_list()
     return 0
 }
 
-# Mandatory input env values: VALIDATOR_ID, ...
+# Mandatory input env values: NODE_ID, ...
 function extract_md5_for_records_from_list()
 {
     #TODO CHECK VARIABLES
-    FILE_LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
-    MD5_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_RECORDS_LIST_MD5_EXTENSION"
+    FILE_LIST_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    MD5_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_RECORDS_LIST_MD5_EXTENSION"
 
     # Check FILE_LIST_FULLPATH's size > 0
     [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 102
 
     echo "$(print_timestamp) ⚙ Extracting MD5 checksums for records to $MD5_FULLPATH"
     jq -c '[.ETag, .Key]' $FILE_LIST_FULLPATH |\
-        sed 's/["\\[]//g' | sed 's/.$//' | sed 's/recordstreams\/record'$VALIDATOR_ID'\///' | sed 's/,/ /g' |\
+        sed 's/["\\[]//g' | sed 's/.$//' | sed 's/recordstreams\/record'$NODE_ID'\///' | sed 's/,/ /g' |\
         grep -v _sig | grep -v sidecar > $MD5_FULLPATH
 
     return 0
 }
 
-# Mandatory input env values: VALIDATOR_ID, ...
+# Mandatory input env values: NODE_ID, ...
 function extract_md5_for_signatures_from_list()
 {
     #TODO CHECK VARIABLES
-    FILE_LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
-    MD5_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_SIGNATURES_LIST_MD5_EXTENSION"
+    FILE_LIST_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    MD5_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_SIGNATURES_LIST_MD5_EXTENSION"
 
     # Check FILE_LIST_FULLPATH's size > 0
     [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 102
 
     echo "$(print_timestamp) ⚙ Extracting MD5 checksums for signatures to $MD5_FULLPATH"
     jq -c '[.ETag, .Key]' $FILE_LIST_FULLPATH |\
-        sed 's/["\\[]//g' | sed 's/.$//' | sed 's/recordstreams\/record'$VALIDATOR_ID'\///' | sed 's/,/ /g' |\
+        sed 's/["\\[]//g' | sed 's/.$//' | sed 's/recordstreams\/record'$NODE_ID'\///' | sed 's/,/ /g' |\
         grep _sig > $MD5_FULLPATH
 
     return 0
 }
 
-# Mandatory input env values: VALIDATOR_ID, ...
+# Mandatory input env values: NODE_ID, ...
 function extract_md5_for_sidecars_from_list()
 {
     #TODO CHECK VARIABLES
-    FILE_LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
-    MD5_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_SIDECARS_LIST_MD5_EXTENSION"
+    FILE_LIST_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    MD5_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_SIDECARS_LIST_MD5_EXTENSION"
 
     # Check FILE_LIST_FULLPATH's size > 0
     [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 102
 
     echo "$(print_timestamp) ⚙ Extracting MD5 checksums for sidecars to $MD5_FULLPATH"
     jq -c '[.ETag, .Key]' $FILE_LIST_FULLPATH |\
-        sed 's/["\\[]//g' | sed 's/.$//' | sed 's/recordstreams\/record'$VALIDATOR_ID'\///' | sed 's/,/ /g' |\
+        sed 's/["\\[]//g' | sed 's/.$//' | sed 's/recordstreams\/record'$NODE_ID'\///' | sed 's/,/ /g' |\
         grep sidecar > $MD5_FULLPATH
 
     return 0
@@ -168,12 +168,12 @@ function download_file_from_aws_s3()
 }
 
 
-# Mandatory input env values: VALIDATOR_ID, ...
+# Mandatory input env values: NODE_ID, ...
 function extract_size_for_records_from_list()
 {
     #TODO CHECK VARIABLES
-    FILE_LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
-    SIZE_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_RECORDS_LIST_SIZE_EXTENSION"
+    FILE_LIST_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    SIZE_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_RECORDS_LIST_SIZE_EXTENSION"
 
     [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 102
 
@@ -185,12 +185,12 @@ function extract_size_for_records_from_list()
     return 0
 }
 
-# Mandatory input env values: VALIDATOR_ID, ...
+# Mandatory input env values: NODE_ID, ...
 function extract_size_for_signatures_from_list()
 {
     #TODO CHECK VARIABLES
-    FILE_LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
-    SIZE_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_SIGNATURES_LIST_SIZE_EXTENSION"
+    FILE_LIST_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    SIZE_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_SIGNATURES_LIST_SIZE_EXTENSION"
 
     [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 102
 
@@ -202,12 +202,12 @@ function extract_size_for_signatures_from_list()
     return 0
 }
 
-# Mandatory input env values: VALIDATOR_ID, ...
+# Mandatory input env values: NODE_ID, ...
 function extract_size_for_sidecars_from_list()
 {
     #TODO CHECK VARIABLES
-    FILE_LIST_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
-    SIZE_FULLPATH="$VALIDATOR_FILE_LIST_FOLDER/$DAY$HD_SIDECARS_LIST_SIZE_EXTENSION"
+    FILE_LIST_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_FILE_LIST_EXTENSION"
+    SIZE_FULLPATH="$NODE_FILE_LIST_FOLDER/$DAY$HD_SIDECARS_LIST_SIZE_EXTENSION"
 
     [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 102
 

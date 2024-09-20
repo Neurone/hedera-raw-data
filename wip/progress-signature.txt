@@ -4,7 +4,7 @@
 
 
 
- ./download-and-check-signatures-by-md5sum-list.sh 0.0.3 2024-01-26 per validatori multipli
+ ./download-and-check-signatures-by-md5sum-list.sh 0.0.3 2024-01-26 per nodei multipli
 
 
 ## complete

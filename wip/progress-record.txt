@@ -91,7 +91,7 @@ wc -l /media/sf_Hedera/hedera-streams/lists/0.0.3/2024-01-07.records.md5sum && l
 #############
 
 
-attenzione, il validatore 3 ha dei buchi (due evidenti nell'elenco dei file che ha a disposizione... da investigare)
+attenzione, il nodo 3 ha dei buchi (due evidenti nell'elenco dei file che ha a disposizione... da investigare)
 
 
 
