@@ -8,7 +8,7 @@
 
 
 
-❯ ./download-and-check-records-by-md5sum-list.sh 0.0.3 2024-01-13
+
 ❯ ./download-and-check-records-by-md5sum-list.sh 0.0.3 2024-01-14
 ❯ ./download-and-check-records-by-md5sum-list.sh 0.0.3 2024-01-15
 ❯ ./download-and-check-records-by-md5sum-list.sh 0.0.3 2024-01-16
@@ -31,11 +31,12 @@
 
 # Completati e verificato md5sum
 
-❯ ./download-and-check-records-by-md5sum-list.sh 0.0.3 2024-01-12
-❯ ./download-record-by-md5sum-list.sh 0.0.3 2024-01-10
-❯ ./download-record-by-md5sum-list.sh 0.0.3 2024-01-11
 ❯ ./download-record-by-md5sum-list.sh 0.0.3 2024-01-26
 ❯ ./download-record-by-md5sum-list.sh 0.0.3 2024-01-25
+❯ ./download-and-check-records-by-md5sum-list.sh 0.0.3 2024-01-13
+❯ ./download-and-check-records-by-md5sum-list.sh 0.0.3 2024-01-12
+❯ ./download-record-by-md5sum-list.sh 0.0.3 2024-01-11
+❯ ./download-record-by-md5sum-list.sh 0.0.3 2024-01-10
 ❯ ./download-record-by-md5sum-list.sh 0.0.3 2024-01-09
 ❯ ./download-record-by-md5sum-list.sh 0.0.3 2024-01-02
 ❯ ./download-record-by-md5sum-list.sh 0.0.3 2024-01-01

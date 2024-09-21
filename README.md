@@ -17,7 +17,7 @@ Tools to download, manage and share Hedera raw data
 |with-nodes-range | Helper script to loop through node ranges. |
 |loop-date-range | Helper script to loop through dates. |
 
-You can run multiple scripts that download files (record, signature, sidecar) in parallel on the same list. The script randomize by default the file order, so it reduces the odds to overlap with other script. In case the file is already there, the script skip that file.
+You can run multiple scripts that download files (signature only, soon record and sidecar) in parallel on the same list. The script randomize by default the file order, so it reduces the odds to overlap with other script. In case the file is already there, the script skip that file.
 
 In any case, the script check the hash of the file at the end of the process and, in case it's wrong, it downloads the file again.
 

@@ -13,7 +13,7 @@ NODE_FILE_LIST_FOLDER=$HD_LISTS_ROOT_FOLDER/$NODE_ID
 DAY=$2
 
 echo "$(print_timestamp) ⚑ Started $0 (PID $$) with the following configuration"
-echo "$(print_timestamp) ⛶ Day (UTC) .......................: $DAY"
+echo "$(print_timestamp) ⛶ Day (UTC) ..................: $DAY"
 echo "$(print_timestamp) ⛶ Node ID ....................: $NODE_ID"
 echo "$(print_timestamp) ⛶ Node's file lists folder ...: $NODE_FILE_LIST_FOLDER"
 

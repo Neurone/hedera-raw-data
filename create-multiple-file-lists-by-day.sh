@@ -13,8 +13,8 @@ LOGGING_FOLDER="$HD_LOGGING_FOLDER/$FOLDER_FRIENDLY_TIMESTAMP-create-single-file
 
 echo "$(print_timestamp) ⚑ Started $0 (PID $$) with the following configuration"
 echo "$(print_timestamp) ⛶ Day (UTC) ...............: $DAY"
-echo "$(print_timestamp) ⛶ First node ID ......: 0.0.$HD_FIRST_NODE_NUMBER_ID"
-echo "$(print_timestamp) ⛶ Last node ID .......: 0.0.$HD_LAST_NODE_NUMBER_ID"
+echo "$(print_timestamp) ⛶ First node ID ...........: 0.0.$HD_FIRST_NODE_NUMBER_ID"
+echo "$(print_timestamp) ⛶ Last node ID ............: 0.0.$HD_LAST_NODE_NUMBER_ID"
 echo "$(print_timestamp) ⛶ Logs folder .............: $LOGGING_FOLDER"
 echo "$(print_timestamp) ⛶ Logs files format .......: 0.0.<NODE_ID>.log"
 echo "$(print_timestamp) ⛶ Monitor all logs with ...: tail -f $LOGGING_FOLDER/*"

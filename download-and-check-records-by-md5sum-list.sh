@@ -16,7 +16,7 @@ NODE_S3_SOURCE_FOLDER="$HD_S3_RECORD_SOURCE_FOLDER/record$NODE_ID"
 NODE_RECORDS_DESTINATION_FOLDER="$NODE_RECORDS_FOLDER/$DAY"
 
 echo "$(print_timestamp) ⚑ Started $0 (PID $$) with the following configuration"
-echo "$(print_timestamp) ⛶ Day (UTC) .........................: $DAY"
+echo "$(print_timestamp) ⛶ Day (UTC) ....................: $DAY"
 echo "$(print_timestamp) ⛶ Node ID ......................: $NODE_ID"
 echo "$(print_timestamp) ⛶ Node's file lists folder .....: $NODE_FILE_LIST_FOLDER"
 echo "$(print_timestamp) ⛶ Node's records destination ...: $NODE_RECORDS_DESTINATION_FOLDER"

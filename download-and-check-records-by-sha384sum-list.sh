@@ -1,15 +1,17 @@
 #!/bin/bash
-# ./download-and-check-records-by-md5sum-list 0.0.3 2024-01-01
+# Download data trusting the results provided by a mirror node APIs, in particular the /blocks endpoint
+# The script download the record file, the corresponding signatures, and the potential sidecar
+# Note: signature are downloaded but NOT currently verified
+# the only verification is done on the hash of the record file, so if you trust the mirror node to provide the correct hash, you can download the file from another node if the hash does not match (by default files are downloaded from the 0.0.3 folder)
 
 # TODO check file existence
 source $(dirname "$0")/utils/common.sh
 
 # Check parameters
-test -z "$1" && echo "Specify a node ID (i.e. 0.0.3) as first parameter" && exit 100
-test -z "$2" && echo "Specify a day (i.e. 2024-01-20) as second parameter" && exit 100
+test -z "$1" && echo "Specify a day (i.e. 2024-01-20) as first parameter" && exit 100
 
-NODE_ID="$1"
-DAY="$2"
+NODE_ID="mirror-node"
+DAY="$1"
 NODE_FILE_LIST_FOLDER="$HD_LISTS_ROOT_FOLDER/$NODE_ID"
 NODE_RECORDS_FOLDER="$HD_RECORDS_ROOT_FOLDER/$NODE_ID"
 NODE_S3_SOURCE_FOLDER="$HD_S3_RECORD_SOURCE_FOLDER/record$NODE_ID"
@@ -25,20 +27,13 @@ init_working_folders
 
 create_folder_if_not_present $NODE_RECORDS_DESTINATION_FOLDER
 
-echo "$(print_timestamp) ☕ Downloading the record files listed in the MD5 list but missing from the node's folder"
+echo "$(print_timestamp) ☕ Downloading the record files listed by the mirror node at $HD_MIRROR_NODE_API"
 
-# TODO check file sorgente esiste
-
-cat $NODE_FILE_LIST_FOLDER/$DAY$HD_RECORDS_LIST_MD5_EXTENSION | cut -d' ' -f2 > $NODE_FILE_LIST_FOLDER/$DAY$HD_RECORDS_FILENAME_LIST_EXTENSION
-while IFS= read -r f; do
-    if [[ ! -s $NODE_RECORDS_DESTINATION_FOLDER/$f ]]; then
-        download_file_from_aws_s3 $NODE_S3_SOURCE_FOLDER/$f $NODE_RECORDS_DESTINATION_FOLDER/$f
-    fi
-done < "$NODE_FILE_LIST_FOLDER/$DAY$HD_RECORDS_FILENAME_LIST_EXTENSION"
+#download_file_from_aws_s3 $NODE_S3_SOURCE_FOLDER/$f $NODE_RECORDS_DESTINATION_FOLDER/$f
 
 echo "$(print_timestamp) ✔ Download operations ended"
 
-check_md5sum_list_over_folder $NODE_FILE_LIST_FOLDER/$DAY$HD_RECORDS_LIST_MD5_EXTENSION $NODE_RECORDS_DESTINATION_FOLDER
+check_sha384sum_list_over_folder $NODE_FILE_LIST_FOLDER/$DAY$HD_RECORDS_LIST_SHA384_EXTENSION $NODE_RECORDS_DESTINATION_FOLDER
 
 echo "$(print_timestamp) 🏁 Script $0 (PID $$) ended" &&\
     exit 0

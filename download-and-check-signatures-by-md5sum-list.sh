@@ -21,12 +21,12 @@ NODE_SIGNATURES_DESTINATION_FOLDER="$NODE_SIGNATURES_FOLDER/$DAY"
 MD5_FILE_LIST=$NODE_FILE_LIST_FOLDER/$DAY$HD_SIGNATURES_LIST_MD5_EXTENSION
 
 echo "$(print_timestamp) ⚑ Started $0 (PID $$) with the following configuration"
-echo "$(print_timestamp) ⛶ Day (UTC) ............................: $DAY"
+echo "$(print_timestamp) ⛶ Day (UTC) .......................: $DAY"
 echo "$(print_timestamp) ⛶ Node ID .........................: $NODE_ID"
-echo "$(print_timestamp) ⛶ Randomize file order..................: $RANDOMIZE_FILE_ORDER"
+echo "$(print_timestamp) ⛶ Randomize file order.............: $RANDOMIZE_FILE_ORDER"
 echo "$(print_timestamp) ⛶ Node's file lists folder ........: $NODE_FILE_LIST_FOLDER"
 echo "$(print_timestamp) ⛶ Node's signatures destination ...: $NODE_SIGNATURES_DESTINATION_FOLDER"
-echo "$(print_timestamp) ⛶ MD5 file list ........................: $MD5_FILE_LIST"
+echo "$(print_timestamp) ⛶ MD5 file list ...................: $MD5_FILE_LIST"
 
 init_working_folders
 
