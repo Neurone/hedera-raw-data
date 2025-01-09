@@ -36,8 +36,8 @@ if [ -z "$LAST_RECORD_FILE" ]; then
     echo "$(print_timestamp) ☕ Downloading record files from S3 record folder for node $NODE_ID on $DAY"
     cat $NODE_FILE_LIST_FOLDER/$DAY$HD_RECORDS_LIST_MD5_EXTENSION |\
         cut -d' ' -f2 |\
-        xargs -I {} aws s3api get-object --bucket hedera-mainnet-streams --request-payer requester --key $NODE_S3_SOURCE_FOLDER/{} $NODE_RECORD_DESTINATION_FOLDER/{} --no-cli-pager --output text
-        #xargs -I {} aws s3 cp s3://hedera-mainnet-streams/$NODE_S3_SOURCE_FOLDER/{} $NODE_RECORD_DESTINATION_FOLDER --request-payer requester --no-paginate --output text
+        xargs -I {} aws s3api get-object --bucket hedera-testnet-streams-2024-02 --request-payer requester --key $NODE_S3_SOURCE_FOLDER/{} $NODE_RECORD_DESTINATION_FOLDER/{} --no-cli-pager --output text
+        #xargs -I {} aws s3 cp s3://hedera-testnet-streams-2024-02/$NODE_S3_SOURCE_FOLDER/{} $NODE_RECORD_DESTINATION_FOLDER --request-payer requester --no-paginate --output text
 else
     # Continue downloading again the last file (included, because in case of errors during the download the last file could be corrupted)
     echo "$(print_timestamp) ☕ Continuing download of record files from S3 record folder for node $NODE_ID on $DAY, starting from $LAST_RECORD_FILE"
@@ -45,8 +45,8 @@ else
         cut -d' ' -f2 |\
         sed '1,/'$LAST_RECORD_FILE'/d' |\
         sed -e '1i'$LAST_RECORD_FILE |\
-        xargs -I {} aws s3api get-object --bucket hedera-mainnet-streams --request-payer requester --key $NODE_S3_SOURCE_FOLDER/{} $NODE_RECORD_DESTINATION_FOLDER/{} --no-cli-pager --output text
-        #xargs -I {} aws s3 cp s3://hedera-mainnet-streams/$NODE_S3_SOURCE_FOLDER/{} $NODE_RECORD_DESTINATION_FOLDER --request-payer requester --no-paginate --output text
+        xargs -I {} aws s3api get-object --bucket hedera-testnet-streams-2024-02 --request-payer requester --key $NODE_S3_SOURCE_FOLDER/{} $NODE_RECORD_DESTINATION_FOLDER/{} --no-cli-pager --output text
+        #xargs -I {} aws s3 cp s3://hedera-testnet-streams-2024-02/$NODE_S3_SOURCE_FOLDER/{} $NODE_RECORD_DESTINATION_FOLDER --request-payer requester --no-paginate --output text
 fi
 
 echo "$(print_timestamp) ✔ Download operations ended"

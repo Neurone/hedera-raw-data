@@ -3,7 +3,7 @@
 # TODO check file existence
 source $(dirname "$0")/utils/common.sh
 
-REMOTE_AWS_S3_FILE=hedera-mainnet-streams/$1
+REMOTE_AWS_S3_FILE=hedera-testnet-streams-2024-02/$1
 LOCAL_FILE=$2
 FORCE_DOWNLOAD="false"
 test "$3" == "overwrite-if-present" && FORCE_DOWNLOAD="true"

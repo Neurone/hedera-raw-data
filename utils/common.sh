@@ -32,12 +32,12 @@ function search_record_signature_sidecar_list()
         
     echo "$(print_timestamp) ☕ Filtering files for $DAY and consensus node $NODE_ID from AWS S3"
 
-    aws s3api list-objects-v2 --bucket hedera-mainnet-streams --request-payer requester --prefix $S3_BUCKET_PREFIX --output json |\
+    aws s3api list-objects-v2 --bucket hedera-testnet-streams-2024-02 --request-payer requester --prefix $S3_BUCKET_PREFIX --output json |\
         jq -c ".Contents[]?" > $LIST_FULLPATH
     
     S3_BUCKET_PREFIX="recordstreams/record$NODE_ID/sidecar/$DAY"
 
-    aws s3api list-objects-v2 --bucket hedera-mainnet-streams --request-payer requester --prefix $S3_BUCKET_PREFIX --output json |\
+    aws s3api list-objects-v2 --bucket hedera-testnet-streams-2024-02 --request-payer requester --prefix $S3_BUCKET_PREFIX --output json |\
         jq -c ".Contents[]?" >> $LIST_FULLPATH
 
     [ ! -s "${LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ Requested file $S3_BUCKET_PREFIX missing from AWS S3. Exiting." && exit 101
