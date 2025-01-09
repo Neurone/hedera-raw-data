@@ -139,7 +139,7 @@ bytes	455	application/octet-stream	"9de088e826ca33095ee2e387c8924860"	2019-09-13
 ...
 ```
 
-Check if all the record file list and corresponding metadata are created. If not, it downloads the list. This checks from the start 2019-09-13 up to yesterday (current date -1 day).
+Check if all the record file list and corresponding metadata are created. If not, it downloads the list. This checks from the network start date (i.e. 2019-09-13 for Mainnet, but you configure it with HD_HEDERA_MAINNET_START_DATE) up to yesterday (current date -1 day).
 
 ```zsh
 ./check-node-file-lists.sh 0.0.3
