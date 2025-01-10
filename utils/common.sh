@@ -99,9 +99,10 @@ function create_medatada_from_list()
     [ ! -s "${FILE_LIST_FULLPATH}" ] && echo "$(print_timestamp) ⛔ File list $FILE_LIST_FULLPATH is empty! A previous download may have been failed. Exiting." && exit 103
 
     echo "$(print_timestamp) ⚙ Creating metadata: $METADATA_FULLPATH"
-    # we have one record file + one record signature each 2 seconds, so in total ~86400 elements per day
-    # total size of all listed files (record file + signatures)
-    # total size in MBytes
+    # every 2 seconds, we have one record file + one record signature, so in total ~86400 elements per day
+    # we also have a random number of sidecars files, depending if that record file produced some contract results
+    # total size of all listed files (record file + signatures + sidecars)
+    # same total size, in MBytes
     echo "$(wc -l $FILE_LIST_FULLPATH | cut -d' ' -f1) files" > $METADATA_FULLPATH &&\
         FILE_LIST_TOTAL_SIZE=$(jq ".Size" $FILE_LIST_FULLPATH | paste -s -d+ - | bc) &&\
         echo "$FILE_LIST_TOTAL_SIZE total bytes" >> $METADATA_FULLPATH &&\
@@ -304,7 +305,7 @@ function extract_size_for_records_from_list()
 
     echo "$(print_timestamp) ⚙ Computing records total size to $SIZE_FULLPATH"
     jq -c "[.Size, .Key]" $FILE_LIST_FULLPATH |\
-        grep -v _sig | sed 's/\[//g' | sed 's/,.*//g'| paste -s -d+ - |\
+        grep -v _sig | grep -v sidecar | sed 's/\[//g' | sed 's/,.*//g'| paste -s -d+ - |\
         bc > $SIZE_FULLPATH
 
     return 0
